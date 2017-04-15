@@ -11,6 +11,7 @@ function User(){
     this.password = ""; //need to declare the things that I want to be remembered for each user in the database
     this.name = "";
     this.shoppingCart = "";
+    this.admin = false;
     //this.teacher = false;
     //this.voted = false;
     this.save = function(callback) {
@@ -39,6 +40,7 @@ function User(){
                 user.password = result.rows[0]['password'];
                 user.user_id = result.rows[0]['user_id'];
                 user.name = result.rows[0]['name'];
+                user.admin = result.rows[0]['admin'];
                 //user.voted = result.rows[0]['voted'];
                 console.log(user.email);
                 client.end();
@@ -111,6 +113,7 @@ User.findById = function(id, callback){
             user.password = result.rows[0]['password'];
             user.user_id = result.rows[0]['user_id'];
             user.name = result.rows[0]['name'];
+            user.admin = result.rows[0]['admin'];
             //user.voted = result.rows[0]['voted'];
             //console.log(user.email);
             return callback(null, user);

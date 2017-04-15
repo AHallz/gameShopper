@@ -16,25 +16,27 @@ var pg          = require('pg');
 var config      = require('./config/config.js');
 var conString   = "pg://"+ config.username + ":"+ config.password+"@"+config.host+":5432/postgres";
 
+app.use(bodyParser.urlencoded({ extended: true }));
 require('./config/passport')(passport);
 //app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
-app.use(bodyParser()); // get information from html forms
-
-app.set('view engine', 'ejs'); // set up ejs for templating
 
 app.use("/styles", express.static(__dirname+'/stylesheets'));
 app.use("/scripts",express.static(__dirname+'/javascripts'));
 app.use("/images", express.static(__dirname+'/images'));
 app.use("/node_modules", express.static(__dirname+'/node_modules'));
 
-app.set('views', __dirname + '/views');
-
 // required for passport
 app.use(session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
+app.set('view engine', 'ejs'); // set up ejs for templating
+
+
+
+//app.use(bodyParser.json()); // for parsing application/json
+app.set('views', __dirname + '/views');
 
 var User = require('./app/models/user');
 
@@ -57,12 +59,37 @@ var User = require('./app/models/user');
         res.render('login.ejs', { message: req.flash('loginMessage') });
     });
 
+    app.post('/login', function(req, res, next) {
+      passport.authenticate('local-login', function(err, user, info) {
+        if (err){ 
+            return next(err);
+        }
+        // Redirect if it fails
+        if (!user){ 
+            return res.redirect('/login'); 
+        }
+        req.login(user, function(err) {
+            if (err){ 
+                return next(err);
+            }
+            // Redirect if it succeeds
+            if(isAdminBool(req)){
+                return res.redirect('/adminHome');
+            }
+            else{
+                return res.redirect('/home');
+            }
+        });
+      })(req, res, next);
+    });
     // process the login form
+    /*
     app.post('/login', passport.authenticate('local-login', {
         successRedirect : '/home', // redirect to the secure profile section
         failureRedirect : '/login', // redirect back to the signup page if there is an error
         failureFlash : true // allow flash messages
     }));
+*/
 
     // =====================================
     // SIGNUP ==============================
@@ -75,7 +102,7 @@ var User = require('./app/models/user');
     // process the signup form
     // app.post('/signup', do all our passport stuff here);
     app.post('/signup', passport.authenticate('local-signup', {
-        successRedirect : '/studentPages',
+        successRedirect : '/home',
         failureRedirect : '/signup', // redirect back to the signup page if there is an error
         failureFlash : true // allow flash messages
     }));
@@ -100,7 +127,7 @@ function isLoggedIn(req, res, next) {
     res.redirect('/');
 }
 
-function isAdmin(req, res, next){
+function isAdminNext(req, res, next){
     if (req.isAuthenticated()){
         if(req.user.admin){
             console.log('user Is Admin');
@@ -113,13 +140,72 @@ function isAdmin(req, res, next){
         res.redirect('/');
     }
 }
+
+function isAdminBool(req){
+    if (req.isAuthenticated()){
+        if(req.user.admin){
+            console.log('user Is Admin');
+            return true;
+        }
+        console.log('user is not Admin');
+        return false;
+    }
+    else{
+        return false;
+    }
+}
 //----------------------------------------------------------
 //						Database Ops
 //----------------------------------------------------------
+app.post('/testingForm', function(req,res){
+    console.log(req.body);
+});
+
+
 app.get('/db/testing', function(req,res){
 	console.log("Calling testing script...");
 	databaseOperations.testing(req,res);
 });
+
+
+
+//games table functions
+app.post('/db/getAllGames', function(req,res){
+    console.log("Calling getAllGames script...");
+    databaseOperations.getAllGames(req,res);
+});
+
+app.post('/db/getGameById', function(req,res){
+    console.log("Calling getGameById script...");
+    databaseOperations.getGameById(req,res);
+});
+
+app.post('/db/addGame', function(req,res){
+    console.log("Calling addGame script...");
+    console.log("Body: ");
+    console.log(req.body);
+    databaseOperations.addGame(req,res);
+});
+
+//order_history table functions
+app.post('/db/getAllOrderHistory', function(req,res){
+    console.log("Calling getAllOrderHistory script...");
+    databaseOperations.getAllOrderHistory(req,res);
+});
+
+//stores table functions
+app.post('/db/getAllStores', function(req,res){
+    console.log("Calling getAllStores script...");
+    databaseOperations.getAllStores(req,res);
+});
+
+//store_stock table functions
+app.post('/db/getAllStoreStock', function(req,res){
+    console.log("Calling getAllStoreStock script...");
+    databaseOperations.getAllStoreStock(req,res);
+});
+
+
 
 //----------------------------------------------------------
 //							Views
@@ -137,7 +223,29 @@ app.get('/stores', isLoggedIn, function(req,res){
 });
 
 app.get('/shoppingCart', isLoggedIn, function(req,res){
-    res.sendFile(path.join(__dirname+'/views/shoppingCart.html'));
+    if(req.user.admin){
+        res.sendFile(path.join(__dirname+'/views/stores.html'));
+    }
+    else{
+        res.sendFile(path.join(__dirname+'/views/shoppingCart.html'));
+    }
+});
+
+//Admin views for editing the database entries
+app.get('/adminHome', isAdminNext, function(req,res){
+    res.sendFile(path.join(__dirname+'/views/adminHome.html'));
+});
+
+app.get('/gameCatalogEdit', isAdminNext, function(req,res){
+    res.sendFile(path.join(__dirname+'/views/gameCatalogEdit.html'));
+});
+
+app.get('/storesEdit', isAdminNext, function(req,res){
+    res.sendFile(path.join(__dirname+'/views/storesEdit.html'));
+});
+
+app.get('/orderHistory', isAdminNext, function(req,res){
+    res.sendFile(path.join(__dirname+'/views/orderHistory.html'));
 });
 
 var server = app.listen(8080, function () {

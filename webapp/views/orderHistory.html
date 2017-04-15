@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Student Webpage Voting</title>
+    <title>GameShopper</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="/styles/bootstrap.css" media="screen">
@@ -19,7 +18,7 @@
     <div class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
-          <a href="/home" class="navbar-brand">Student Page Voting</a>
+          <a href="/adminHome" class="navbar-brand">GameShopper</a>
           <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -29,13 +28,13 @@
         <div class="navbar-collapse collapse" id="navbar-main">
           <ul class="nav navbar-nav">
             <li>
-              <a href="/studentPages">Student Pages</a>
+              <a href="/gameCatalogEdit">Game Catalog Editor</a>
             </li>
             <li>
-              <a href="/uploadFiles">Upload Files</a>
+              <a href="/storesEdit">Stores Editor</a>
             </li>
             <li>
-              <a href="/seeResults">See Results</a>
+              <a href="/orderHistory">Order History</a>
             </li>
           </ul>
 
@@ -47,31 +46,21 @@
       </div>
     </div>
     <!-- Main body -->
-    <div ng-app="votePages" ng-controller="voteController" ng-init="populateVotingPages()"style="padding-left: 30px;padding-right: 30px;">
-      <div> 
-
-        <h1 class="page-header">Student Projects and Voting</h1>
-        <h3>  
-          Here you can download the most recent set of student projects and vote on which you think is the best! View them at your own leisure with whatever medium pleases you and remember, you can only vote for one!
-        </h3>
-        <span style="padding: 20px">
-          <button ng-click="openDownload()" class="btn btn-default">Download The Projects</button>
-        </span>
-        <hr>
-        <table class="table table-hover">
-          <thead>
-          <td><strong>Page Name</strong></td>
-          </thead>
-          <tr ng-repeat="data in votingPages">          
-            <td> {{data}} </td>
-            <td> 
-              <button ng-click="voteFor(data)" ng-if="!votedBool" ng-disabled="votedBool" class="btn btn-default">Vote for this page!</button>
-              <button ng-if="votedBool" ng-disabled="votedBool" class="btn btn-default">You've already voted!</button>
-            </td>
-          </tr>
-        </table>
-        <hr> 
-      </div>
+    <div ng-app="votePages" ng-controller="voteController" ng-init="teacherStatus();"style="padding-left: 30px; padding-right: 30px;">
+      <h1 class="page-header">Store Editor</h1>
+      <h3>
+        Welcome to the GameShopper web app!
+        </br>This is where you can mass order games from all different stores to ensure that you get the best prices and all your games at once!
+      </h3>
+      <hr>
+      <h2><strong>Instructions</strong></h2>
+      <hr>
+      <h3>
+        <h3>Admins:</h3></br>
+        <h4>
+          Implementation coming soon!
+        </h4>
+      </h3>   
     </div>
 
     <!-- =================================================
