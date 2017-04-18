@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="/styles/bootstrap.css" media="screen">
     <link rel="stylesheet" href="/styles/custom.min.css">
+    <link rel="stylesheet" href="/styles/table.css">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="../bower_components/html5shiv/dist/html5shiv.js"></script>
@@ -62,10 +63,22 @@
         </h4>
       </h3>
       <hr>
-        <form action="/testingForm" method="post">
-              <input type="text" name="testing" ng-model="formData.cost" placeholder="Enter cost" />
-              <input type="text" name="testing2" ng-model="formData.title" placeholder="Enter title" />
-              <button type="submit" class="btn btn-primary" ng-click="sub()">Submit</button>
+        <form>
+          <table>
+            <tr>
+              <td>
+                <input type="text" name="testing" ng-model="formData.cost" placeholder="Enter cost" />
+              </td>
+              <td>
+                <input type="text" name="testing2" ng-model="formData.title" placeholder="Enter title" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button type="submit" class="btn btn-primary" ng-click="sub()">Submit</button>
+              </td>
+            </tr>
+          </table>
         </form>
         <hr>
       <form name="dataForm" novalidate><!--    method="post" action="/db/addAerisItem"  ng-submit="dataForm.$valid && addAerisItem();"-->
