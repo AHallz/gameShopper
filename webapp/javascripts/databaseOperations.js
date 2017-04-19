@@ -119,10 +119,8 @@ module.exports = {
 		var results = [];
 		var pg = require('pg');
 		var client = new pg.Client(conString);
-		console.log(req.body);
-		console.log(req.query);
 		client.connect();
-		client.query("INSERT INTO games (title, cost) values($1, $2)",[req.body.title, req.body.cost]);
+		client.query("INSERT INTO games (title, cost) values($1, $2)",[req.query.title, req.query.cost]);
 		var query_games = client.query("SELECT * from games ORDER BY game_id ASC");
 		query_games.on("row", function(row){
 			results.push(row);
@@ -161,6 +159,22 @@ module.exports = {
 			return res.json(results);
 		})
 	},
+	addStore: function(req,res){
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		client.query("INSERT INTO stores (name, location) values($1, $2)",[req.query.name, req.query.location]);
+		var query_stores = client.query("SELECT * from stores ORDER BY store_id ASC");
+		query_stores.on("row", function(row){
+			results.push(row);
+		});
+		query_stores.on("end", function(){
+			console.log('Item added to stores table');
+			client.end();
+			return res.json(results);
+		})
+	},
 	getAllStoreStock: function(req,res){
 		var results = [];
 		var pg = require('pg');
@@ -171,6 +185,74 @@ module.exports = {
 			results.push(row);
 		});
 		queryGames.on("end", function(){
+			client.end();
+			return res.json(results);
+		})
+	},
+	getStoresAndStock: function(req,res){
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		var queryStoreStock = client.query("SELECT * from store_stock AS ss, stores, games WHERE stores.store_id=ss.store_id AND ss.game_id=games.game_id");
+		queryGames.on("row", function(row){
+			results.push(row);
+		});
+		queryGames.on("end", function(){
+			client.end();
+			return res.json(results);
+		})
+	},
+	deleteItem: function(req,res,tableNum,itemId){
+		var results = [];
+		var table;
+		var idSelect;
+		if(tableNum == 1){
+			table = 'games';
+			idSelect = 'game_id';
+		}
+		else if(tableNum == 2){
+			table = 'order_history';
+			idSelect = 'order_id';
+		}
+		//DEAL WITH THIS LATER
+		else if(tableNum == 3){
+			table = 'store_stock';
+			idSelect = '';
+		}
+		//^^^^^^^^^^^^^^^^^^^^^^
+		else if(tableNum == 4){
+			table = 'stores';
+			idSelect = 'store_id';
+		}
+
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		client.query("DELETE FROM "+table+" WHERE "+idSelect+" = $1", [itemId]);
+		var query_Locations = client.query("SELECT * from "+table+" ORDER BY "+idSelect+" ASC");
+		query_Locations.on("row", function(row){
+			results.push(row);
+		});
+		query_Locations.on("end", function(){
+			console.log('Item deleted from %s table',table);
+			client.end();
+			return res.json(results);
+		})
+	},
+	deleteStockItem: function(req,res,gameId,storeId){
+		var results = [];
+
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		client.query("DELETE FROM store_stock WHERE game_id = $1 AND store_id = $2", [gameId,storeId]);
+		var query_Locations = client.query("SELECT * FROM store_stock");
+		query_Locations.on("row", function(row){
+			results.push(row);
+		});
+		query_Locations.on("end", function(){
+			console.log('Item deleted from store_stock table');
 			client.end();
 			return res.json(results);
 		})

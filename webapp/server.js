@@ -182,8 +182,6 @@ app.post('/db/getGameById', function(req,res){
 
 app.post('/db/addGame', function(req,res){
     console.log("Calling addGame script...");
-    console.log("Body: ");
-    console.log(req.body);
     databaseOperations.addGame(req,res);
 });
 
@@ -199,10 +197,42 @@ app.post('/db/getAllStores', function(req,res){
     databaseOperations.getAllStores(req,res);
 });
 
+app.post('/db/addStore', function(req,res){
+    console.log("Calling addStore script...");
+    databaseOperations.addStore(req,res);
+});
+
 //store_stock table functions
 app.post('/db/getAllStoreStock', function(req,res){
     console.log("Calling getAllStoreStock script...");
     databaseOperations.getAllStoreStock(req,res);
+});
+
+app.post('/db/getStoresAndStock', function(req,res){
+    console.log("Calling getStoresAndStock script...");
+    databaseOperations.getStoresAndStock(req,res);
+});
+
+app.post('/db/deleteItem/:table/:itemId', function(req,res){
+    var table;
+    if(req.params.table == 1)
+        table = 'games';
+    else if(req.params.table == 2)
+        table = 'order_history';
+    //DEAL WITH THIS LATER
+    else if(req.params.table == 3)
+        table = 'store_stock';
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else if(req.params.table == 4)
+        table = 'stores';
+    
+    console.log("Deleting Item #%d from table %s", req.params.itemId, table);
+    databaseOperations.deleteItem(req,res,req.params.table,req.params.itemId);
+});
+
+app.post('/db/deleteStockItem/:gameId/:storeId', function(req,res){
+    console.log("Deleting Game: %d from Store: %d from table store_stock", req.params.gameId, req.params.storeId);
+    databaseOperations.deleteStockItem(req,res,req.params.gameId,req.params.storeId);
 });
 
 
