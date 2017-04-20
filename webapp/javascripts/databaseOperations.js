@@ -195,10 +195,26 @@ module.exports = {
 		var client = new pg.Client(conString);
 		client.connect();
 		var queryStoreStock = client.query("SELECT * from store_stock AS ss, stores, games WHERE stores.store_id=ss.store_id AND ss.game_id=games.game_id");
-		queryGames.on("row", function(row){
+		queryStoreStock.on("row", function(row){
 			results.push(row);
 		});
-		queryGames.on("end", function(){
+		queryStoreStock.on("end", function(){
+			client.end();
+			return res.json(results);
+		})
+	},
+	addGameToStore: function(req,res){
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		client.query("INSERT INTO store_stock (game_id, store_id, count) values($1, $2, $3)",[req.query.game_id, req.query.store_id, req.query.count]);
+		var query_stores = client.query("SELECT * from store_stock");
+		query_stores.on("row", function(row){
+			results.push(row);
+		});
+		query_stores.on("end", function(){
+			console.log('Item added to store_stock table');
 			client.end();
 			return res.json(results);
 		})
@@ -240,7 +256,7 @@ module.exports = {
 			return res.json(results);
 		})
 	},
-	deleteStockItem: function(req,res,gameId,storeId){
+	deleteStoreItem: function(req,res,gameId,storeId){
 		var results = [];
 
 		var pg = require('pg');

@@ -213,6 +213,11 @@ app.post('/db/getStoresAndStock', function(req,res){
     databaseOperations.getStoresAndStock(req,res);
 });
 
+app.post('/db/addGameToStore', function(req,res){
+    console.log("Calling addGameToStore script...");
+    databaseOperations.addGameToStore(req,res);
+});
+
 app.post('/db/deleteItem/:table/:itemId', function(req,res){
     var table;
     if(req.params.table == 1)
@@ -230,9 +235,9 @@ app.post('/db/deleteItem/:table/:itemId', function(req,res){
     databaseOperations.deleteItem(req,res,req.params.table,req.params.itemId);
 });
 
-app.post('/db/deleteStockItem/:gameId/:storeId', function(req,res){
+app.post('/db/deleteStoreItem/:gameId/:storeId', function(req,res){
     console.log("Deleting Game: %d from Store: %d from table store_stock", req.params.gameId, req.params.storeId);
-    databaseOperations.deleteStockItem(req,res,req.params.gameId,req.params.storeId);
+    databaseOperations.deleteStoreItem(req,res,req.params.gameId,req.params.storeId);
 });
 
 

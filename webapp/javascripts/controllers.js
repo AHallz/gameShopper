@@ -9,6 +9,7 @@ angular.module('gameStorePages', [])
 .controller('gameStoreController', ['$scope', '$http', '$location', function($scope, $http, $location){
     //variables for use in the front view
     $scope.currFormData = [];
+    $scope.currForm1Data = [];
     $scope.adminStatus = false;
     $scope.gamesData = [];
     $scope.orderHistoryData = [];
@@ -115,6 +116,23 @@ angular.module('gameStorePages', [])
         });
     }
 
+    $scope.addGameToStore = function(store_id){
+        $scope.currForm1Data.store_id = store_id;
+        $http({
+            method: 'POST',
+            url: "/db/addGameToStore",           
+            params: $scope.currForm1Data,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        }).success(function(data, status){
+            $scope.currForm1Data =[];
+            //$scope.dataForm1.$setPristine();
+            $scope.getStoresAndStock();
+        })
+        .error(function(error){
+            console.log('Error: ' + error);
+        });
+    }
+
     $scope.getStoresAndStock = function(){
         $http.post('/db/getStoresAndStock')
         .success(function(data){
@@ -145,7 +163,7 @@ angular.module('gameStorePages', [])
             });
     }
 
-    $scope.deleteStoreItem = function(table,itemId){
+    $scope.deleteStoreItem = function(gameId,storeId){
         $http.post('/db/deleteStoreItem/' + gameId + '/' + storeId)
             .success(function(data,status) {
                 console.log("Delted some stuff");

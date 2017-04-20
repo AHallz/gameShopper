@@ -47,7 +47,7 @@
       </div>
     </div>
     <!-- Main body -->
-    <div ng-app="gameStorePages" ng-controller="gameStoreController" ng-init="getAllStores();getAllGames();"style="padding-left: 30px; padding-right: 30px;">
+    <div ng-app="gameStorePages" ng-controller="gameStoreController" ng-init="getAllStores();getAllGames();getStoresAndStock();"style="padding-left: 30px; padding-right: 30px;">
       <h1 class="page-header">Store Editor</h1>
       <h2><strong>Instructions</strong></h2>
       <hr>
@@ -60,17 +60,52 @@
           <td><strong>Game Title</strong></td>
           <!--<td><strong>Location ID</strong></td>-->
           <td><strong>Cost</strong></td>
-          <td><strong># in Stock</strong></td>
+          <td><strong># In Stock</strong></td>
           <td><strong>Delete Entry</strong></td>
         </thead>
 
         <tr ng-repeat="data in storeAndStockData" ng-if="numStores.store_id == data.store_id">          
-          <td> {{data.game_id}} </td>
+          <td> {{data.title}} </td>
           <td> {{data.cost}}</td>
           <td> {{data.count}} </td> 
-          <td> <p><button title="Delete this entry" class="glyphicon glyphicon-trash text-danger" style="color:red" ng-click="deleteItem(data.game_id.data.store_id);"></button></p> </td>
+          <td> <p><button title="Delete this entry" class="btn btn-danger" ng-click="deleteStoreItem(data.game_id,data.store_id);">Delete Me</button></p> </td>
         </tr>
         <!-- ADD NEW SECTION HERE TO HAVE THEM BE ABLE TO ADD GAMES TO THE STORE HERE -->
+        <tr>
+          <td>
+          <table name="dataForm1">
+            <caption><strong>Add a Game to {{numStores.name}}'s Stock</strong></caption>
+            <thead>
+              <td><strong>Game Title</strong></td>
+              <!--<td><strong>Cost</strong></td>-->
+              <td><strong>Number Of Copies</strong></td>
+              <td><strong>Add Entry</strong></td>
+            </thead>
+            <tr>
+            <td>
+              <select name="idSelect" data-role="none" id="idSelect" ng-model="currForm1Data.game_id" required>
+                <option ng-repeat="data in gamesData" value="{{data.game_id}}">{{+data.title}}</option>
+              </select>
+              <span class="error" ng-show="dataForm1.$dirty && dataForm1.idSelect.$invalid"><font color="red">Required</font></span>
+            </td>
+            <!--Maybe replace with this a discount thing since cost is only set in when the game is placed in, 
+                like the game will be the same price everywhere so idk
+            <td>
+              <input id="cost" name="cost" type="number" placeholder="Cost..." ng-model="currForm1Data.cost" class="form-control-input-small" min="1" max="100000" required></input>
+              <span class="error" ng-show="dataForm1.$dirty && dataForm1.cost.$invalid"><font color="red"> Less than 100000</font></span>
+            </td>
+          -->
+            <td>
+              <input id="count" name="count" type="number" placeholder="How Many Copies..." ng-model="currForm1Data.count" class="form-control-input-small" min="1" max="100000" required></input>
+              <span class="error" ng-show="dataForm1.$dirty && dataForm1.count.$invalid"><font color="red"> Less than 100000</font></span>
+            </td>
+            <td>
+              <button type="submit" ng-disabled="dataForm1.$invalid" class="btn btn-primary" ng-click="addGameToStore(numStores.store_id);">Add Game Record</button>
+            </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
       </table>
       <hr>
 
