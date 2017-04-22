@@ -7,6 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="/styles/bootstrap.css" media="screen">
     <link rel="stylesheet" href="/styles/custom.min.css">
+    <link rel="stylesheet" href="/styles/table.css">
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="../bower_components/html5shiv/dist/html5shiv.js"></script>
@@ -46,28 +48,36 @@
       </div>
     </div>
     <!-- Main body -->
-    <div ng-app="votePages" ng-controller="voteController" ng-init="teacherStatus();"style="padding-left: 30px; padding-right: 30px;">
+    <div ng-app="gameStorePages" ng-controller="gameStoreController" ng-init="getAllGames();getAllStores();getStoresAndStock();"style="padding-left: 30px; padding-right: 30px;">
       <h1 class="page-header">Game Catalog</h1>
       <h3>
         Welcome to the GameShopper web app!
-        </br>This is where you can mass order games from all different stores to ensure that you get the best prices and all your games at once!
+        </br>This is where you can order games from all different stores to ensure that you get the best prices and all your games at once!
       </h3>
       <hr>
-      <h2><strong>Instructions</strong></h2>
-      <hr>
-      <h3>
-        <h3>Users:</h3></br>
-        <h4>
-          Implementation coming coon!
-        </h4> 
-        <span ng-if="adminStatus">
-          <h3>Admins:</h3></br>
-          <h4>
-            Implementation coming soon!
-          </h4>
-        </span>
-      </h3>  
+      <h3> Available games and where they can be found: </h3>
+      <table class="table table-hover" ng-repeat="game in gamesData">
+        <caption style="color:black"><strong><h2>{{game.title}} is available at:</h2></strong></caption>
+        <thead>
+          <td><strong>Store</strong></td>
+          <td><strong>Store Location</strong></td>
+          <td><strong>Cost</strong></td>
+          <td><strong># In Stock</strong></td>
+          <td><strong>Add To Cart</strong></td>
+        </thead>
+
+        <tr ng-repeat="data in storeAndStockData" ng-if="game.game_id == data.game_id">          
+          <td> {{data.name}} </td>
+          <td> {{data.location}}</td>
+          <td> ${{data.cost}} </td>
+          <td> {{data.count}} </td> 
+          <td> <p>How many? <input id="copyCount" name="copyCount" type="number" default="1" placeholder="1" ng-model="orderForm.copyCount" class="form-control-input-small" min="1" max="{{data.count}}" required></input>   <button title="Add Game to Cart" class="btn btn-primary" ng-click="addGameToCart(game.game_id, data.store_id, orderForm.copyCount)">Add to Cart</button></p> </td>
+        </tr>
+      </table>
     </div>
+    <script type="text/javascript">
+      document.getElementById("copyCount").defaultValue = 1;
+    </script>
 
     <!-- =================================================
                             Scripts                            
@@ -80,9 +90,6 @@
     <script src="/scripts/bootstrap.min.js"></script>
     <!-- angular -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.14/angular.min.js"></script>
-
-    <script type="text/javascript" src="/node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
-    <script type="text/javascript" src="/node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
     
     <!--custom scripts-->
     <script src="/scripts/custom.js"></script>

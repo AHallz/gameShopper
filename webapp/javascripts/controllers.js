@@ -29,7 +29,12 @@ angular.module('gameStorePages', [])
             }
         });
     }
-
+    //Shopping cart functions
+    $scope.addGameToCart = function(gameId, storeId, count){
+        console.log("Game ID:" + gameId);
+        console.log("Store ID:" + storeId);
+        console.log("Count:" + count);
+    } 
     //games table functions
     $scope.getAllGames = function(){
         $http.post('/db/getAllGames')
