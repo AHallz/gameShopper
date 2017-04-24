@@ -31,9 +31,6 @@
               <a href="/gameCatalog">Game Catalog</a>
             </li>
             <li>
-              <a href="/stores">Stores</a>
-            </li>
-            <li>
               <a href="/shoppingCart">Shopping Cart</a>
             </li>
           </ul>
@@ -46,27 +43,26 @@
       </div>
     </div>
     <!-- Main body -->
-    <div ng-app="votePages" ng-controller="voteController" ng-init="teacherStatus();"style="padding-left: 30px; padding-right: 30px;">
+    <div ng-app="gameStorePages" ng-controller="gameStoreController" ng-init="getCurrentOrderHistory();"style="padding-left: 30px; padding-right: 30px;">
       <h1 class="page-header">Shopping Cart</h1>
-      <h3>
-        Welcome to the GameShopper web app!
-        </br>This is where you can mass order games from all different stores to ensure that you get the best prices and all your games at once!
-      </h3>
-      <hr>
-      <h2><strong>Instructions</strong></h2>
-      <hr>
-      <h3>
-        <h3>Users:</h3></br>
-        <h4>
-          Implementation coming coon!
-        </h4> 
-        <span ng-if="adminStatus">
-          <h3>Admins:</h3></br>
-          <h4>
-            Implementation coming soon!
-          </h4>
-        </span>
-      </h3>  
+      <table class="table table-hover">
+        <caption style="color:black"><strong><h2>Current Order</h2></strong></caption>
+          <thead>
+            <td><strong>Game Title</strong></td>
+            <td><strong>Store</strong></td>
+            <td><strong>Count</strong></td>
+            <td><strong>Price In Dollars</strong></td>
+          </thead>
+
+          <tr ng-repeat="data in orderHistoryData">          
+            <td> {{data.title}} </td>
+            <td> {{data.name}} </td>
+            <td> {{data.count}}</td>
+            <td> ${{data.cost}} </td>
+            <td> <p><button title="Delete this entry" class="btn btn-danger" ng-click="deleteSomething(1,data.game_id);">Remove From List</button></p> </td>
+          </tr>
+      </table>
+
     </div>
 
     <!-- =================================================

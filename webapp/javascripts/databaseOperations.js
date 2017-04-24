@@ -145,6 +145,95 @@ module.exports = {
 			return res.json(results);
 		})
 	},
+	getCurrentOrderHistory: function(req,res){
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		var queryOrderHistory = client.query("SELECT * from order_history AS oh, stores as s, games as g WHERE oh.customer_id=$1 AND oh.order_number=$2 s.store_id=oh.store_id AND g.game_id=oh.game_id ORDER BY order_id ASC",[req.user.user_id, req.user.shoppingCartNum]);
+		queryOrderHistory.on("row", function(row){
+			results.push(row);
+		});
+		queryOrderHistory.on("end", function(){
+			client.end();
+			return res.json(results);
+		})
+	},
+	findAndUpdateOrAddSpecificOrder: function(req,res,userId,cartNum){
+		console.log("findSpecificOrder");
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		var queryStores = client.query("SELECT * from order_history WHERE order_number = $1 AND customer_id = $2 AND game_id = $3 AND store_id = $4", [cartNum, userId, req.query.gameId, req.query.storeId]);
+		queryStores.on("row", function(row){
+			results.push(row);
+		});
+		queryStores.on("end", function(){
+			client.end();
+			if(results.length > 0){
+				module.exports.updateOrderHistory(req,res,userId,cartNum,results[0]['count'],1);
+				return res.json(results);
+			}
+			else{
+				module.exports.addToOrderHistory(req,res,userId,cartNum,1);
+				return res.json(results);
+			}
+		})
+	},
+	addToOrderHistory: function(req,res,userId,cartNum,helperBool){
+		console.log("add to order_history")
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+
+		client.query("INSERT INTO order_history (order_number, customer_id, game_id, store_id, cost, count) values($1, $2, $3, $4, $5, $6)",[cartNum, userId, req.query.gameId, req.query.storeId, req.query.cost, req.query.count]);
+		var query_stores = client.query("SELECT * from order_history ORDER BY order_id ASC");
+		query_stores.on("row", function(row){
+			results.push(row);
+		});
+		query_stores.on("end", function(){
+			console.log('Item added to order_history table');
+			client.end();
+			if(helperBool){
+				res.end();
+			}
+			else{
+				return res.json(results);
+			}	
+		})
+	},
+	updateOrderHistory: function(req,res,userId,cartNum,currCount,helperBool){
+		console.log("update to order_history")
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		var tempGameCount = req.query.count;
+		client.connect();
+
+		if(parseInt(currCount)+parseInt(req.query.count) > parseInt(req.query.totalGameCount)){
+			tempGameCount = req.query.totalGameCount;
+		}
+		else{
+			tempGameCount = parseInt(currCount)+parseInt(req.query.count);
+		}
+		client.query("UPDATE order_history SET count=$1 WHERE order_number = $2 AND customer_id = $3 AND game_id = $4", [tempGameCount, cartNum, userId, req.query.gameId]);
+		var query_stores = client.query("SELECT * from order_history ORDER BY order_id ASC");
+		query_stores.on("row", function(row){
+			results.push(row);
+		});
+		query_stores.on("end", function(){
+			console.log('Item updated to order_history table');
+			client.end();
+			if(helperBool){
+				res.end();
+			}
+			else{
+				return res.json(results);
+			}	
+		})
+	},
 	getAllStores: function(req,res){
 		var results = [];
 		var pg = require('pg');

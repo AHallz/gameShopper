@@ -10,6 +10,7 @@ angular.module('gameStorePages', [])
     //variables for use in the front view
     $scope.currFormData = [];
     $scope.currForm1Data = [];
+    $scope.orderForm = [];
     $scope.adminStatus = false;
     $scope.gamesData = [];
     $scope.orderHistoryData = [];
@@ -30,10 +31,25 @@ angular.module('gameStorePages', [])
         });
     }
     //Shopping cart functions
-    $scope.addGameToCart = function(gameId, storeId, count){
+    $scope.addGameToCart = function(gameId, storeId, cost, count, totalGameCount){
         console.log("Game ID:" + gameId);
         console.log("Store ID:" + storeId);
         console.log("Count:" + count);
+
+        $http({
+            method: 'POST',
+            url: "/addToOrderHistory",           
+            params: {'gameId': gameId, 'storeId': storeId, 'cost': cost,'count': count, 'totalGameCount': totalGameCount},
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        }).success(function(data, status){
+            //$scope.currFormData =[];
+            //$scope.dataForm.$setPristine();
+            //$scope.gamesData = data;
+            console.log("Success\n");
+        })
+        .error(function(error){
+            console.log('Error: ' + error);
+        });
     } 
     //games table functions
     $scope.getAllGames = function(){
@@ -75,6 +91,15 @@ angular.module('gameStorePages', [])
     //order_history table functions
     $scope.getAllOrderHistory = function(){
         $http.post('/db/getAllOrderHistory')
+        .success(function(data){
+            $scope.orderHistoryData = data;
+        })
+        .error(function(error){
+            console.log('Error: ' + error);
+        });
+    }
+    $scope.getCurrentOrderHistory = function(){
+        $http.post('/db/getCurrentOrderHistory')
         .success(function(data){
             $scope.orderHistoryData = data;
         })

@@ -33,9 +33,6 @@
               <a href="/gameCatalog">Game Catalog</a>
             </li>
             <li>
-              <a href="/stores">Stores</a>
-            </li>
-            <li>
               <a href="/shoppingCart">Shopping Cart</a>
             </li>
           </ul>
@@ -71,13 +68,16 @@
           <td> {{data.location}}</td>
           <td> ${{data.cost}} </td>
           <td> {{data.count}} </td> 
-          <td> <p>How many? <input id="copyCount" name="copyCount" type="number" default="1" placeholder="1" ng-model="orderForm.copyCount" class="form-control-input-small" min="1" max="{{data.count}}" required></input>   <button title="Add Game to Cart" class="btn btn-primary" ng-click="addGameToCart(game.game_id, data.store_id, orderForm.copyCount)">Add to Cart</button></p> </td>
+          <td> 
+            <form name="orderForm">
+              <p>How many? <input id="copyCount" name="copyCount" type="number" ng-model="orderForm.copyCount" class="form-control-input-small" min="1" max="{{data.count}}" required></input>   
+              <button title="Add Game to Cart" class="btn btn-primary" ng-disabled="orderForm.$invalid" ng-click="addGameToCart(game.game_id, data.store_id, data.cost, orderForm.copyCount, data.count)">Add to Cart</button>
+              </p>
+            </form> 
+          </td>
         </tr>
       </table>
     </div>
-    <script type="text/javascript">
-      document.getElementById("copyCount").defaultValue = 1;
-    </script>
 
     <!-- =================================================
                             Scripts                            

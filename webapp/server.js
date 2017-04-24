@@ -38,7 +38,49 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 //app.use(bodyParser.json()); // for parsing application/json
 app.set('views', __dirname + '/views');
 
+app.post('/db/getAllGames', function(req,res){
+    console.log("Calling getAllGames script...");
+    databaseOperations.getAllGames(req,res);
+});
+
 var User = require('./app/models/user');
+    
+    app.post('/addToOrderHistory', function(req,res){
+        console.log(req.user.shoppingCartNum);
+        databaseOperations.findAndUpdateOrAddSpecificOrder(req,res,req.user.user_id,req.user.shoppingCartNum, function(req,res){
+            console.log(res.results);
+        });
+        console.log(res.results);
+    });
+        /*
+        databaseOperations.addToOrderHistory(req,res,cartNum){}
+        console.log(req.query);
+        console.log(req.query.gameId);
+        console.log(req.user);
+        //console.log(req.User);
+        console.log("Cart:");
+        console.log(req.session.shoppingCart);
+        if(req.session.shoppingCart){
+            console.log("already made");
+            req.session.shoppingCart.push(req.query);
+        }
+        else{
+            req.session.shoppingCart = [];
+            req.session.shoppingCart.push(req.query);
+        }
+        console.log("seession:");
+        console.log(req.session);
+        //req.params.shoppingCart = req.query;
+        console.log(req.session.shoppingCart);
+        req.user.shoppingCart.push(req.query);
+        req.session.save();
+        console.log(req.user);
+        //console.log(res);
+        console.log(res.user);
+    });
+        */
+
+
 
 //----------------------------------------------------------
 //						User Auth and Login
@@ -74,7 +116,7 @@ var User = require('./app/models/user');
             }
             // Redirect if it succeeds
             if(isAdminBool(req)){
-                return res.redirect('/adminHome');
+                return res.redirect('/home');
             }
             else{
                 return res.redirect('/home');
@@ -191,6 +233,11 @@ app.post('/db/getAllOrderHistory', function(req,res){
     databaseOperations.getAllOrderHistory(req,res);
 });
 
+app.post('/db/getCurrentOrderHistory', function(req,res){
+    console.log("Calling getCurrentOrderHistory script...");
+    databaseOperations.getAllOrderHistory(req,res);
+});
+
 //stores table functions
 app.post('/db/getAllStores', function(req,res){
     console.log("Calling getAllStores script...");
@@ -253,17 +300,8 @@ app.get('/gameCatalog', isLoggedIn, function(req,res){
     res.sendFile(path.join(__dirname+'/views/gameCatalog.html'));
 });
 
-app.get('/stores', isLoggedIn, function(req,res){
-    res.sendFile(path.join(__dirname+'/views/stores.html'));
-});
-
 app.get('/shoppingCart', isLoggedIn, function(req,res){
-    if(req.user.admin){
-        res.sendFile(path.join(__dirname+'/views/stores.html'));
-    }
-    else{
-        res.sendFile(path.join(__dirname+'/views/shoppingCart.html'));
-    }
+    res.sendFile(path.join(__dirname+'/views/shoppingCart.html'));
 });
 
 //Admin views for editing the database entries
