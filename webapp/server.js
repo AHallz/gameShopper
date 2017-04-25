@@ -38,11 +38,6 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 //app.use(bodyParser.json()); // for parsing application/json
 app.set('views', __dirname + '/views');
 
-app.post('/db/getAllGames', function(req,res){
-    console.log("Calling getAllGames script...");
-    databaseOperations.getAllGames(req,res);
-});
-
 var User = require('./app/models/user');
     
     app.post('/addToOrderHistory', function(req,res){
@@ -52,35 +47,6 @@ var User = require('./app/models/user');
         });
         console.log(res.results);
     });
-        /*
-        databaseOperations.addToOrderHistory(req,res,cartNum){}
-        console.log(req.query);
-        console.log(req.query.gameId);
-        console.log(req.user);
-        //console.log(req.User);
-        console.log("Cart:");
-        console.log(req.session.shoppingCart);
-        if(req.session.shoppingCart){
-            console.log("already made");
-            req.session.shoppingCart.push(req.query);
-        }
-        else{
-            req.session.shoppingCart = [];
-            req.session.shoppingCart.push(req.query);
-        }
-        console.log("seession:");
-        console.log(req.session);
-        //req.params.shoppingCart = req.query;
-        console.log(req.session.shoppingCart);
-        req.user.shoppingCart.push(req.query);
-        req.session.save();
-        console.log(req.user);
-        //console.log(res);
-        console.log(res.user);
-    });
-        */
-
-
 
 //----------------------------------------------------------
 //						User Auth and Login
@@ -116,7 +82,7 @@ var User = require('./app/models/user');
             }
             // Redirect if it succeeds
             if(isAdminBool(req)){
-                return res.redirect('/home');
+                return res.redirect('/adminHome');
             }
             else{
                 return res.redirect('/home');
@@ -235,7 +201,12 @@ app.post('/db/getAllOrderHistory', function(req,res){
 
 app.post('/db/getCurrentOrderHistory', function(req,res){
     console.log("Calling getCurrentOrderHistory script...");
-    databaseOperations.getAllOrderHistory(req,res);
+    databaseOperations.getCurrentOrderHistory(req,res);
+});
+
+app.post('/db/checkoutCurrentCart', function(req,res){
+    console.log("Calling checkoutCurrentCart script...");
+    databaseOperations.checkoutCurrentCart(req,res);
 });
 
 //stores table functions
@@ -263,6 +234,11 @@ app.post('/db/getStoresAndStock', function(req,res){
 app.post('/db/addGameToStore', function(req,res){
     console.log("Calling addGameToStore script...");
     databaseOperations.addGameToStore(req,res);
+});
+
+app.post('/db/deleteStore/:storeId', function(req,res){
+    console.log("Calling deleteStore script...");
+    databaseOperations.deleteStore(req,res,req.params.storeId);
 });
 
 app.post('/db/deleteItem/:table/:itemId', function(req,res){

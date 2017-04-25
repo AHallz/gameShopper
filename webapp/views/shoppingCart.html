@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="/styles/bootstrap.css" media="screen">
     <link rel="stylesheet" href="/styles/custom.min.css">
+    <link rel="stylesheet" href="/styles/table.css">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="../bower_components/html5shiv/dist/html5shiv.js"></script>
@@ -45,6 +46,7 @@
     <!-- Main body -->
     <div ng-app="gameStorePages" ng-controller="gameStoreController" ng-init="getCurrentOrderHistory();"style="padding-left: 30px; padding-right: 30px;">
       <h1 class="page-header">Shopping Cart</h1>
+      <h2>Hello {{}}</h2>
       <table class="table table-hover">
         <caption style="color:black"><strong><h2>Current Order</h2></strong></caption>
           <thead>
@@ -52,16 +54,27 @@
             <td><strong>Store</strong></td>
             <td><strong>Count</strong></td>
             <td><strong>Price In Dollars</strong></td>
+            <td><strong>Remove From Cart</strong></td>
           </thead>
 
           <tr ng-repeat="data in orderHistoryData">          
             <td> {{data.title}} </td>
             <td> {{data.name}} </td>
             <td> {{data.count}}</td>
-            <td> ${{data.cost}} </td>
-            <td> <p><button title="Delete this entry" class="btn btn-danger" ng-click="deleteSomething(1,data.game_id);">Remove From List</button></p> </td>
+            <td> ${{data.cost*data.count}} </td>
+            <td> <p><button title="Delete this entry" class="btn btn-danger" ng-click="deleteItem(2,data.order_id);">Remove From Cart</button></p> </td>
           </tr>
       </table>
+      <hr>
+      <div name="checkout" id="checkout">
+        <h3 ng-show="toggle==1">Checkout and Purchase this order</h3>
+        <button class="btn btn-primary" ng-show="toggle==1" ng-click="showConfirmCheckout()">Checkout</button>
+        <div name="confirmCheckout" id="confirmCheckout" ng-show="toggle==0">
+          <h3>Confirm order and pay ${{totalCost}}</h3>
+          <button class="btn btn-primary" ng-click="checkoutCurrentCart()">Confirm and Checkout</button>  
+        </div>
+        <h3 ng-show="toggle==2">Thank you for your purchase!</h3>
+      </div>
 
     </div>
 
@@ -77,9 +90,6 @@
     <!-- angular -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.14/angular.min.js"></script>
 
-    <script type="text/javascript" src="/node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
-    <script type="text/javascript" src="/node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
-    
     <!--custom scripts-->
     <script src="/scripts/custom.js"></script>
     <script src="/scripts/controllers.js"></script>

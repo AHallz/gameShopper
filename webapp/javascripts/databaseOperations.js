@@ -136,7 +136,7 @@ module.exports = {
 		var pg = require('pg');
 		var client = new pg.Client(conString);
 		client.connect();
-		var queryOrderHistory = client.query("SELECT * from order_history ORDER BY order_id ASC");
+		var queryOrderHistory = client.query("SELECT * FROM order_history AS oh, stores AS st, games AS ga WHERE st.store_id = oh.store_id AND ga.game_id = oh.game_id ORDER BY order_id ASC");
 		queryOrderHistory.on("row", function(row){
 			results.push(row);
 		});
@@ -150,7 +150,7 @@ module.exports = {
 		var pg = require('pg');
 		var client = new pg.Client(conString);
 		client.connect();
-		var queryOrderHistory = client.query("SELECT * from order_history AS oh, stores as s, games as g WHERE oh.customer_id=$1 AND oh.order_number=$2 s.store_id=oh.store_id AND g.game_id=oh.game_id ORDER BY order_id ASC",[req.user.user_id, req.user.shoppingCartNum]);
+		var queryOrderHistory = client.query("SELECT * FROM order_history AS oh, stores AS st, games AS ga WHERE oh.customer_id = $1 AND oh.order_number = $2 AND st.store_id = oh.store_id AND ga.game_id = oh.game_id ORDER BY order_id ASC",[req.user.user_id, req.user.shoppingCartNum]);
 		queryOrderHistory.on("row", function(row){
 			results.push(row);
 		});
@@ -173,11 +173,11 @@ module.exports = {
 			client.end();
 			if(results.length > 0){
 				module.exports.updateOrderHistory(req,res,userId,cartNum,results[0]['count'],1);
-				return res.json(results);
+				//return res.json(results);
 			}
 			else{
 				module.exports.addToOrderHistory(req,res,userId,cartNum,1);
-				return res.json(results);
+				//return res.json(results);
 			}
 		})
 	},
@@ -196,7 +196,7 @@ module.exports = {
 		query_stores.on("end", function(){
 			console.log('Item added to order_history table');
 			client.end();
-			if(helperBool){
+			if(helperBool == 1){
 				res.end();
 			}
 			else{
@@ -226,12 +226,34 @@ module.exports = {
 		query_stores.on("end", function(){
 			console.log('Item updated to order_history table');
 			client.end();
-			if(helperBool){
+			if(helperBool == 1){
 				res.end();
 			}
 			else{
 				return res.json(results);
 			}	
+		})
+	},
+	checkoutCurrentCart: function(req,res){
+		console.log("add to order_history")
+		var results = [];
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+
+		client.query("UPDATE users SET shopping_cart_num = $1 WHERE user_id = $2",[parseInt(req.user.shoppingCartNum)+1, req.user.user_id]);
+		var query_stores = client.query("UPDATE store_stock SET count=count-" +
+			"(SELECT count FROM order_history as oh WHERE oh.game_id = store_stock.game_id AND oh.store_id = store_stock.store_id AND oh.order_number = $1 AND oh.customer_id = $2)"+ 
+			"WHERE EXISTS"+
+			"(SELECT * FROM order_history as oh WHERE oh.game_id = store_stock.game_id AND oh.store_id = store_stock.store_id AND oh.order_number = $1 AND oh.customer_id = $2)",
+			[req.user.shoppingCartNum,req.user.user_id]);
+		query_stores.on("row", function(row){
+			results.push(row);
+		});
+		query_stores.on("end", function(){
+			console.log('Items updated in store_stock table');
+			client.end();
+			return res.json(results);
 		})
 	},
 	getAllStores: function(req,res){
@@ -297,7 +319,16 @@ module.exports = {
 		var pg = require('pg');
 		var client = new pg.Client(conString);
 		client.connect();
-		client.query("INSERT INTO store_stock (game_id, store_id, count) values($1, $2, $3)",[req.query.game_id, req.query.store_id, req.query.count]);
+		client.query("INSERT INTO store_stock (game_id, store_id, count) VALUES ($1, $2, $3) ON CONFLICT (game_id, store_id) DO UPDATE SET count = store_stock.count + $3;", [req.query.game_id, req.query.store_id, req.query.count]);
+		/*
+		client.query("UPDATE store_stock SET count=count+$3 WHERE game_id=$1 AND store_id=$2; " +
+			"INSERT INTO store_stock (game_id, store_id, count) " +
+			"SELECT $3, $1, $2 WHERE NOT EXISTS (SELECT 1 FROM store_stock WHERE game_id=$1 AND store_id=$2);",[req.query.game_id, req.query.store_id, req.query.count]);
+		*/
+		/*client.query("DO $do$ BEGIN IF NOT EXISTS(SELECT * FROM store_stock WHERE game_id=$1 AND store_id=$2) THEN " +
+			"INSERT INTO store_stock (game_id, store_id, count) values($1, $2, $3); " +
+			"ELSE UPDATE store_stock SET count=count+$3 WHERE game_id=$1 AND store_id=$2; END IF; END $do$",[req.query.game_id, req.query.store_id, req.query.count]);
+		*/
 		var query_stores = client.query("SELECT * from store_stock");
 		query_stores.on("row", function(row){
 			results.push(row);
@@ -353,6 +384,23 @@ module.exports = {
 		client.connect();
 		client.query("DELETE FROM store_stock WHERE game_id = $1 AND store_id = $2", [gameId,storeId]);
 		var query_Locations = client.query("SELECT * FROM store_stock");
+		query_Locations.on("row", function(row){
+			results.push(row);
+		});
+		query_Locations.on("end", function(){
+			console.log('Item deleted from store_stock table');
+			client.end();
+			return res.json(results);
+		})
+	},
+	deleteStore: function(req,res,storeId){
+		var results = [];
+
+		var pg = require('pg');
+		var client = new pg.Client(conString);
+		client.connect();
+		client.query("DELETE FROM store_stock WHERE store_id = $1", [storeId]);
+		var query_Locations = client.query("DELETE FROM stores WHERE store_id = $1", [storeId]);
 		query_Locations.on("row", function(row){
 			results.push(row);
 		});

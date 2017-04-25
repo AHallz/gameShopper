@@ -10,13 +10,16 @@ angular.module('gameStorePages', [])
     //variables for use in the front view
     $scope.currFormData = [];
     $scope.currForm1Data = [];
-    $scope.orderForm = [];
+    $scope.orderFormData = [];
     $scope.adminStatus = false;
     $scope.gamesData = [];
     $scope.orderHistoryData = [];
     $scope.storesData = [];
     $scope.storeStockData = [];
     $scope.storesAndStockData = [];
+
+    $scope.totalCost = 0;
+    $scope.toggle = 1;
 
 
     $scope.adminStatus = function(){
@@ -42,10 +45,9 @@ angular.module('gameStorePages', [])
             params: {'gameId': gameId, 'storeId': storeId, 'cost': cost,'count': count, 'totalGameCount': totalGameCount},
             headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
         }).success(function(data, status){
-            //$scope.currFormData =[];
-            //$scope.dataForm.$setPristine();
-            //$scope.gamesData = data;
-            console.log("Success\n");
+            $scope.getAllGames();
+            $scope.getAllStores();
+            $scope.getStoresAndStock();
         })
         .error(function(error){
             console.log('Error: ' + error);
@@ -107,6 +109,25 @@ angular.module('gameStorePages', [])
             console.log('Error: ' + error);
         });
     }
+    $scope.showConfirmCheckout = function(){
+        $scope.toggle = 0;
+        console.log($scope.orderHistoryData);
+        console.log($scope.orderHistoryData.length);
+        for(var i = 0; i < $scope.orderHistoryData.length; i++){
+            console.log($scope.orderHistoryData[i].cost);
+            $scope.totalCost += parseFloat($scope.orderHistoryData[i].cost)*parseFloat($scope.orderHistoryData[i].count);
+        }
+    }
+    $scope.checkoutCurrentCart = function(){
+        $http.post('/db/checkoutCurrentCart')
+        .success(function(data){
+            $scope.orderHistoryData = [];
+            $scope.toggle = 2;
+        })
+        .error(function(error){
+            console.log('Error: ' + error);
+        });
+    }
     //stores table functions
     $scope.getAllStores = function(){
         $http.post('/db/getAllStores')
@@ -163,6 +184,20 @@ angular.module('gameStorePages', [])
         });
     }
 
+    $scope.deleteStore = function(storeId){
+        console.log("storeID" + storeId);
+        $http.post('/db/deleteStore/' + storeId)
+            .success(function(data,status) {
+                console.log("Delted some stuff");
+                    $scope.getAllStores();
+                    $scope.getAllGames();
+                    $scope.getStoresAndStock();
+            })
+            .error(function(error) {
+                console.log('Error: ' + error);
+            });
+    }
+
     $scope.getStoresAndStock = function(){
         $http.post('/db/getStoresAndStock')
         .success(function(data){
@@ -180,7 +215,7 @@ angular.module('gameStorePages', [])
                 if(table == 1)
                     $scope.getAllGames();
                 else if(table == 2)
-                    $scope.getAllOrderHistory();
+                    $scope.getCurrentOrderHistory();
                 //DEAL WITH THIS LATER
                 else if(table == 3)
                     $scope.getAllStores();

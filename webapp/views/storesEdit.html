@@ -49,11 +49,6 @@
     <!-- Main body -->
     <div ng-app="gameStorePages" ng-controller="gameStoreController" ng-init="getAllStores();getAllGames();getStoresAndStock();"style="padding-left: 30px; padding-right: 30px;">
       <h1 class="page-header">Store Editor</h1>
-      <h2><strong>Instructions</strong></h2>
-      <hr>
-      <h4>
-        Implementation coming soon!
-      </h4>
       <table class="table table-hover" ng-repeat="numStores in storesData">
         <caption style="color:black"><strong><h2>Game Stock Data for: {{numStores.name}} at location: {{numStores.location}}</h2></strong></caption>
         <thead>
@@ -106,6 +101,12 @@
             </tr>
             </table>
           </form>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4>Or Delete this store and all records associated   <button class="btn btn-danger" ng-click="deleteStore(numStores.store_id)">Delete Store</button></h4>
+            
           </td>
         </tr>
       </table>
